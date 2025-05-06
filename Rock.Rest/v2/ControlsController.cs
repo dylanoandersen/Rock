@@ -5853,6 +5853,32 @@ namespace Rock.Rest.v2
 
         #region Group Picker
 
+        [HttpPost]
+        [Route( "GroupSelection" )]
+        [Authenticate]
+        [ExcludeSecurityActions ( Security.Authorization.EXECUTE_WRITE)]
+        public IActionResult GroupSelection([FromBody] GroupPickerGetChildrenOptionsBag options)
+        {
+            var groupQuery = new GroupService(new RockContext()).Queryable().AsNoTracking();
+
+            if(!options.IncludeInactiveGroups)
+            {
+                groupQuery = groupQuery.Where(g => g.IsActive);
+            }
+
+            var result = groupQuery
+                .Select(g => new 
+                {
+                    g.Name,
+                    g.Guid,
+                    g.IsActive
+
+                })
+                .ToList();
+            return Ok(result);
+        }
+
+
         /// <summary>
         /// Gets the groups that can be displayed in the group picker.
         /// </summary>
